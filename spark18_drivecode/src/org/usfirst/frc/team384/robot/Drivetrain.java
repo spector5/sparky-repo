@@ -15,7 +15,7 @@ public class Drivetrain {
 	private SpeedControllerGroup leftDrivetrain = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
 	private SpeedControllerGroup rightDrivetrain = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
 	
-	private DifferentialDrive diffDrive = new DifferentialDrive(frontLeftMotor, frontRightMotor);
+	private DifferentialDrive diffDrive;
 	
 	double leftStickValue = 0.0;			
 	double rightStickValue = 0.0;
@@ -25,6 +25,7 @@ public class Drivetrain {
 	
 	public Drivetrain() {
 		
+		// i dont think this is necessary
 		frontRightMotor.setSafetyEnabled(false);
 		frontLeftMotor.setSafetyEnabled(false);
 		rearRightMotor.setSafetyEnabled(false);
@@ -34,19 +35,24 @@ public class Drivetrain {
 		frontRightMotor.setInverted(true);
 		
 		rearRightMotor.follow(frontRightMotor);
-		rearLeftMotor.follow(frontLeftMotor);		
+		rearLeftMotor.follow(frontLeftMotor);
+		
+		// moved this to the constructor, must invert first
+		diffDrive = new DifferentialDrive(leftDrivetrain, rightDrivetrain);
 	}
 	
+	/* unneeded for now
 	public void initializeEncoders()	{
 		frontLeftMotor.getSensorCollection().setQuadraturePosition(0, 0);
 		frontRightMotor.getSensorCollection().setQuadraturePosition(0, 0);
-	}
+	}*/
 
 	/*
 	 * Get encoder position
 	 * 0 = left side drive rail
 	 * 1 = right side drive rail
 	 */
+	/* unneeded for now
 	public int getEncoderPosition(int side)	{
 		int result;
 		
@@ -59,13 +65,14 @@ public class Drivetrain {
 		}
 		
 		return result;
-	}
+	}*/
 
 	/*
 	 * Get the encoder position as a double, averaging both sides
 	 * This returns the distance in inches.
 	 * Make sure that both encoder values are of same polarity
 	 */
+	/* unneeded for now
 	public double getEncoderDistance()	{
 		int leftEncoderDistance;
 		int rightEncoderDistance;
@@ -82,13 +89,14 @@ public class Drivetrain {
 		 * one of the channels is not working.  I'll use the left only for now
 		 * 
 		 * Also, left is negative when going forward.
-		 */
+		 *
 		
 		// Return only the left encoder until the right encoder gets fixed
 		return leftEncoderDistance * DRIVE_DIST_PER_PULSE;
-	}
+	}*/
 	
-	public int getEncoderVelocity(int side)	{
+	/* unneeded for now
+	 public int getEncoderVelocity(int side)	{
 		int result;
 		
 		if(side == 0)	{
@@ -100,6 +108,28 @@ public class Drivetrain {
 		}
 		
 		return result;
+	}*/
+	
+	// 0 = front left, 1 = rear left, 2 = front right, 3 = rear right
+	public double getSingleMotorOutput(int motorId) {
+		double val = -1;
+		
+		switch (motorId)
+		{
+		case 0:
+			val = frontLeftMotor.getMotorOutputPercent();
+			break;
+		case 1:
+			val = rearLeftMotor.getMotorOutputPercent();
+			break;
+		case 2:
+			val = frontRightMotor.getMotorOutputPercent();
+			break;
+		case 3:
+			val = rearRightMotor.getMotorOutputPercent();
+			break;
+		}
+		return val;
 	}
 	
 	public double getDriveMotorOutput(int side)	{

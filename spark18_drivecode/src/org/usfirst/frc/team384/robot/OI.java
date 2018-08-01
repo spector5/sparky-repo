@@ -21,6 +21,7 @@ public class OI {
 			result = joystick1.getRawButton(b);
 		}
 		
+		// this should not be relevent to the current robot
 		if (result)
 			joyButtonStatus[stick] [b] = true;	// store the pressed state of the button
 		//System.out.println("Recorded button held for stick " + stick + " button " + b);

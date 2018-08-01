@@ -41,9 +41,9 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
+		//m_chooser.addDefault("Default Auto", kDefaultAuto);
+		//m_chooser.addObject("My Auto", kCustomAuto);
+		//SmartDashboard.putData("Auto choices", m_chooser);
 		
 		drivetrain.setBrakeMode(true);
 	}
@@ -92,8 +92,16 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("XAxis", oi.getAxis(STICK0, XAXIS));
 		SmartDashboard.putNumber("YAxis", oi.getAxis(STICK0, YAXIS));
 		
+		SmartDashboard.putNumber("Left Front", drivetrain.getSingleMotorOutput(0));
+		SmartDashboard.putNumber("Left Rear", drivetrain.getSingleMotorOutput(1));
+		SmartDashboard.putNumber("Right Front", drivetrain.getSingleMotorOutput(2));
+		SmartDashboard.putNumber("Right Rear", drivetrain.getSingleMotorOutput(3));
 		if (oi.getButtonHeld(STICK0,1))	{
 			drivetrain.arcadeDrive(oi.getAxis(STICK0, YAXIS), -oi.getAxis(STICK0, XAXIS));
+			SmartDashboard.putNumber("Left Front", drivetrain.getSingleMotorOutput(0));
+			SmartDashboard.putNumber("Left Rear", drivetrain.getSingleMotorOutput(1));
+			SmartDashboard.putNumber("Right Front", drivetrain.getSingleMotorOutput(2));
+			SmartDashboard.putNumber("Right Rear", drivetrain.getSingleMotorOutput(3));
 		}
 	}
 
@@ -102,5 +110,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
 	}
 }
