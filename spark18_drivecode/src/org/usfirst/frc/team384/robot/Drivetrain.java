@@ -3,28 +3,32 @@ package org.usfirst.frc.team384.robot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.CounterBase;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 public class Drivetrain {
-	private WPI_TalonSRX frontRightMotor = new WPI_TalonSRX(12);
-	private WPI_TalonSRX rearRightMotor = new WPI_TalonSRX(8);
-	private WPI_TalonSRX frontLeftMotor = new WPI_TalonSRX(6);		// -1.0 to run forward
-	private WPI_TalonSRX rearLeftMotor = new WPI_TalonSRX(2);		// -1.0 to run forward
+	private WPI_TalonSRX frontRightMotor = new WPI_TalonSRX(12);	// THIS IS A RIGHT MOTOR MUST BE INVERSED
+	private WPI_TalonSRX frontLeftMotor = new WPI_TalonSRX(6);	// originally was rear right
+	private WPI_TalonSRX rearRightMotor = new WPI_TalonSRX(8);		// originally was front left, THIS IS A RIGHT MOTOR MUST BE INVERTED
+	private WPI_TalonSRX rearLeftMotor = new WPI_TalonSRX(2);		// -THIS IS A LEFT MOTOR, MUST BE INVERSED
 	
-	private SpeedControllerGroup leftDrivetrain = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
-	private SpeedControllerGroup rightDrivetrain = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
+	private SpeedControllerGroup leftDrivetrain;
+	private SpeedControllerGroup rightDrivetrain;
 	
 	private DifferentialDrive diffDrive;
+	
+	private Encoder rightEncoder = new Encoder(1, 2, false, CounterBase.EncodingType.k1X);
+	private Encoder leftEncoder = new Encoder(4, 5, false, CounterBase.EncodingType.k2X);
 	
 	double leftStickValue = 0.0;			
 	double rightStickValue = 0.0;
 	
 	private final double DRIVE_ENC_PPR = 512;
-	private final double DRIVE_DIST_PER_PULSE = 5.875 * Math.PI / DRIVE_ENC_PPR;
+	private final double DRIVE_DIST_PER_PULSE = 3.75 * Math.PI / DRIVE_ENC_PPR;
 	
 	public Drivetrain() {
-		
 		// i dont think this is necessary
 		frontRightMotor.setSafetyEnabled(false);
 		frontLeftMotor.setSafetyEnabled(false);
@@ -32,47 +36,69 @@ public class Drivetrain {
 		rearLeftMotor.setSafetyEnabled(false);
 		
 		frontLeftMotor.setInverted(true);
+		rearLeftMotor.setInverted(true);
 		frontRightMotor.setInverted(true);
+		rearRightMotor.setInverted(true);
 		
 		rearRightMotor.follow(frontRightMotor);
+		rightDrivetrain = new SpeedControllerGroup(frontRightMotor, rearRightMotor);
+		
 		rearLeftMotor.follow(frontLeftMotor);
+		leftDrivetrain = new SpeedControllerGroup(frontLeftMotor, rearLeftMotor);
 		
 		// moved this to the constructor, must invert first
-		diffDrive = new DifferentialDrive(leftDrivetrain, rightDrivetrain);
+		diffDrive = new DifferentialDrive(leftDrivetrain, rightDrivetrain);	// was using front right
 	}
 	
-	/* unneeded for now
 	public void initializeEncoders()	{
-		frontLeftMotor.getSensorCollection().setQuadraturePosition(0, 0);
-		frontRightMotor.getSensorCollection().setQuadraturePosition(0, 0);
-	}*/
+		rearLeftMotor.getSensorCollection().setQuadraturePosition(0, 0);
+		rearRightMotor.getSensorCollection().setQuadraturePosition(0, 0);
+		
+		leftEncoder.setDistancePerPulse(DRIVE_DIST_PER_PULSE);
+		rightEncoder.setDistancePerPulse(DRIVE_DIST_PER_PULSE);
+		leftEncoder.reset();
+		rightEncoder.reset();
+	}
 
 	/*
 	 * Get encoder position
 	 * 0 = left side drive rail
 	 * 1 = right side drive rail
 	 */
-	/* unneeded for now
 	public int getEncoderPosition(int side)	{
 		int result;
 		
 		if(side == 0)	{
-			result = frontLeftMotor.getSelectedSensorPosition(0);
+			result = rearLeftMotor.getSelectedSensorPosition(0);
+			result = leftEncoder.getRaw();
 		} else if (side == 1)	{
-			result = frontRightMotor.getSelectedSensorPosition(0);
+			result = rearRightMotor.getSelectedSensorPosition(0);
+			result = rightEncoder.getRaw();
 		}	else	{	// an illegal value was sent
 			result = 0;
 		}
 		
 		return result;
-	}*/
+	}
 
+	/*
+	 * 0 = left
+	 * 1 = right
+	 */
+	public double getEncoderDistance(int side) {
+		if (side == 0)
+			return leftEncoder.getDistance();
+		else if (side == 1)
+			return rightEncoder.getDistance();
+		else
+			return -1;	
+	}
+	
 	/*
 	 * Get the encoder position as a double, averaging both sides
 	 * This returns the distance in inches.
 	 * Make sure that both encoder values are of same polarity
 	 */
-	/* unneeded for now
 	public double getEncoderDistance()	{
 		int leftEncoderDistance;
 		int rightEncoderDistance;
@@ -89,13 +115,12 @@ public class Drivetrain {
 		 * one of the channels is not working.  I'll use the left only for now
 		 * 
 		 * Also, left is negative when going forward.
-		 *
+		 */
 		
 		// Return only the left encoder until the right encoder gets fixed
 		return leftEncoderDistance * DRIVE_DIST_PER_PULSE;
-	}*/
+	}
 	
-	/* unneeded for now
 	 public int getEncoderVelocity(int side)	{
 		int result;
 		
@@ -108,7 +133,7 @@ public class Drivetrain {
 		}
 		
 		return result;
-	}*/
+	}
 	
 	// 0 = front left, 1 = rear left, 2 = front right, 3 = rear right
 	public double getSingleMotorOutput(int motorId) {
@@ -151,18 +176,16 @@ public class Drivetrain {
 	public void setBrakeMode(boolean brakeon)	{
 		if (brakeon)	{
 			frontRightMotor.setNeutralMode(NeutralMode.Brake);
-			frontLeftMotor.setNeutralMode(NeutralMode.Brake);
+			rearLeftMotor.setNeutralMode(NeutralMode.Brake);
 			rearRightMotor.setNeutralMode(NeutralMode.Brake);
 			frontLeftMotor.setNeutralMode(NeutralMode.Brake);
 		}	else {
 			frontRightMotor.setNeutralMode(NeutralMode.Coast);
-			frontLeftMotor.setNeutralMode(NeutralMode.Coast);
+			rearLeftMotor.setNeutralMode(NeutralMode.Coast);
 			rearRightMotor.setNeutralMode(NeutralMode.Coast);
 			frontLeftMotor.setNeutralMode(NeutralMode.Coast);
 		}
 	}
 	
 	
-
-
 }

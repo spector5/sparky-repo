@@ -33,6 +33,7 @@ public class Robot extends IterativeRobot {
 	public Robot() {
 		oi = new OI();
 		drivetrain = new Drivetrain();
+		drivetrain.initializeEncoders();
 	}
 
 	/**
@@ -83,6 +84,10 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
+	public void teleopInit() {
+		drivetrain.initializeEncoders();
+	}
+	
 	/**
 	 * This function is called periodically during operator control.
 	 */
@@ -96,12 +101,23 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Left Rear", drivetrain.getSingleMotorOutput(1));
 		SmartDashboard.putNumber("Right Front", drivetrain.getSingleMotorOutput(2));
 		SmartDashboard.putNumber("Right Rear", drivetrain.getSingleMotorOutput(3));
+		
+		SmartDashboard.putNumber("Right Encoder Count", drivetrain.getEncoderPosition(1));
+		SmartDashboard.putNumber("Left Encoder Count", drivetrain.getEncoderPosition(0));
+		SmartDashboard.putNumber("Right Encoder Distance", drivetrain.getEncoderDistance(1));
+		SmartDashboard.putNumber("Left Encoder Distance", drivetrain.getEncoderDistance(0));
+		
 		if (oi.getButtonHeld(STICK0,1))	{
 			drivetrain.arcadeDrive(oi.getAxis(STICK0, YAXIS), -oi.getAxis(STICK0, XAXIS));
 			SmartDashboard.putNumber("Left Front", drivetrain.getSingleMotorOutput(0));
 			SmartDashboard.putNumber("Left Rear", drivetrain.getSingleMotorOutput(1));
 			SmartDashboard.putNumber("Right Front", drivetrain.getSingleMotorOutput(2));
 			SmartDashboard.putNumber("Right Rear", drivetrain.getSingleMotorOutput(3));
+		
+			SmartDashboard.putNumber("Right Encoder Count", drivetrain.getEncoderPosition(1));
+			SmartDashboard.putNumber("Left Encoder Count", drivetrain.getEncoderPosition(0));
+			SmartDashboard.putNumber("Right Encoder Distance", drivetrain.getEncoderDistance(1));
+			SmartDashboard.putNumber("Left Encoder Distance", drivetrain.getEncoderDistance(0));
 		}
 	}
 
